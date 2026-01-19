@@ -9,6 +9,12 @@ from .models import CustomUser, Wallet, Transaction, InventoryItem
 def index(request):
     return render(request, 'index.html')
 
+def team(request):
+    return render(request, 'team.html')
+
+def register(request):
+    return render(request, 'register.html')
+
 @login_required
 @transaction.atomic
 def purchase_item(request, item_id):

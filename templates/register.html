@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Account | ScholarCash</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -21,21 +24,25 @@
             --error: #ff4d4d;
             --warning: #ffd700;
             --success: #00ff9d;
-            
+
             --text-main: #ffffff;
             --text-muted: #888888;
             --border: #333333;
-            
+
             /* Design System: Neo-Brutalist Professional */
             --radius: 6px;
             --shadow-hard: 5px 5px 0px var(--primary);
             --shadow-hover: 2px 2px 0px var(--primary);
-            
+
             --font-head: 'Space Grotesk', sans-serif;
             --font-body: 'Inter', sans-serif;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             background-color: var(--bg-core);
@@ -51,9 +58,13 @@
         /* --- Background Animation --- */
         #gl-canvas {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: -1;
-            opacity: 0.25; /* Subtle backdrop */
+            opacity: 0.25;
+            /* Subtle backdrop */
         }
 
         /* --- Main Card Container --- */
@@ -63,7 +74,8 @@
             box-shadow: var(--shadow-hard);
             border-radius: var(--radius);
             width: 100%;
-            max-width: 550px; /* Wider for professional spacing */
+            max-width: 550px;
+            /* Wider for professional spacing */
             padding: 2.5rem 3rem;
             position: relative;
             z-index: 10;
@@ -96,11 +108,16 @@
         /* --- Form Grid Layout --- */
         .form-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Two columns */
+            grid-template-columns: 1fr 1fr;
+            /* Two columns */
             gap: 1.25rem;
         }
 
-        .col-full { grid-column: span 2; } /* Spans full width */
+        .col-full {
+            grid-column: span 2;
+        }
+
+        /* Spans full width */
 
         .input-group {
             display: flex;
@@ -117,7 +134,8 @@
         }
 
         /* --- Professional Inputs --- */
-        input, select {
+        input,
+        select {
             background: #000;
             border: 1px solid var(--border);
             border-radius: var(--radius);
@@ -129,13 +147,16 @@
             transition: all 0.2s ease;
         }
 
-        input:focus, select:focus {
+        input:focus,
+        select:focus {
             border-color: var(--primary);
             background: rgba(0, 255, 157, 0.02);
             box-shadow: 0 0 0 2px rgba(0, 255, 157, 0.1);
         }
 
-        input::placeholder { color: #444; }
+        input::placeholder {
+            color: #444;
+        }
 
         /* Custom Select Arrow */
         select {
@@ -151,7 +172,7 @@
         .strength-container {
             margin-top: -0.5rem;
         }
-        
+
         .strength-bar {
             height: 4px;
             background: #222;
@@ -223,7 +244,8 @@
             border: 2px solid var(--primary);
             border-radius: var(--radius);
             cursor: pointer;
-            box-shadow: 4px 4px 0px #fff; /* White shadow for contrast */
+            box-shadow: 4px 4px 0px #fff;
+            /* White shadow for contrast */
             transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             top: 0;
@@ -258,16 +280,22 @@
             font-size: 0.9rem;
             transition: color 0.3s;
         }
-        .back-nav:hover { color: var(--primary); }
-                /* --- MOBILE RESPONSIVENESS PATCH --- */
+
+        .back-nav:hover {
+            color: var(--primary);
+        }
+
+        /* --- MOBILE RESPONSIVENESS PATCH --- */
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
-                align-items: flex-start; /* Allow scrolling on small screens */
+                align-items: flex-start;
+                /* Allow scrolling on small screens */
             }
 
             .register-card {
-                padding: 1.5rem; /* Reduce padding to save space */
+                padding: 1.5rem;
+                /* Reduce padding to save space */
                 margin-top: 2rem;
             }
 
@@ -279,30 +307,32 @@
             }
 
             .form-grid {
-                grid-template-columns: 1fr; /* Force single column */
+                grid-template-columns: 1fr;
+                /* Force single column */
                 gap: 1rem;
             }
 
             .col-full {
-                grid-column: span 1; /* Reset full-width span */
+                grid-column: span 1;
+                /* Reset full-width span */
             }
-            
+
             .back-nav {
-                position: static; /* Un-float the back button */
+                position: static;
+                /* Un-float the back button */
                 margin-bottom: 1rem;
             }
         }
-
-
     </style>
 </head>
+
 <body>
 
     <canvas id="gl-canvas"></canvas>
 
     <div class="register-card">
-        
-        <a href="login.html" class="back-nav">
+
+        <a href="{% url 'login' %}" class="back-nav">
             <i data-lucide="arrow-left" style="width: 16px;"></i> Back to Login
         </a>
 
@@ -314,9 +344,10 @@
             <i data-lucide="cpu" style="color: var(--primary); width: 32px; height: 32px;"></i>
         </div>
 
-        <form action="login.html" onsubmit="return validateForm()">
+        <form method="post" action="{% url 'login' %}" onsubmit="return validateForm()">
+            {% csrf_token %}
             <div class="form-grid">
-                
+
                 <div class="input-group col-full">
                     <label>Full Legal Name</label>
                     <input type="text" placeholder="e.g. Alex Chen" required>
@@ -359,7 +390,8 @@
                 <div class="col-full checkbox-group">
                     <input type="checkbox" id="terms" required>
                     <label for="terms" class="checkbox-label">
-                        I agree to the <a href="#" class="link">Terms of Service</a> & <a href="#" class="link">Privacy Policy</a>
+                        I agree to the <a href="#" class="link">Terms of Service</a> & <a href="#" class="link">Privacy
+                            Policy</a>
                     </label>
                 </div>
 
@@ -370,7 +402,7 @@
                     Create Account
                 </button>
                 <div class="footer-link">
-                    Already have an ID? <a href="login.html" class="link">Sign In</a>
+                    Already have an ID? <a href="{% url 'login' %}" class="link">Sign In</a>
                 </div>
             </div>
         </form>
@@ -385,16 +417,16 @@
             const val = document.getElementById('password').value;
             const fill = document.getElementById('strength-fill');
             const text = document.getElementById('strength-text');
-            
+
             let strength = 0;
-            if(val.length > 5) strength += 25;
-            if(val.length > 8) strength += 25;
-            if(/[A-Z]/.test(val)) strength += 25;
-            if(/[0-9]/.test(val)) strength += 25;
+            if (val.length > 5) strength += 25;
+            if (val.length > 8) strength += 25;
+            if (/[A-Z]/.test(val)) strength += 25;
+            if (/[0-9]/.test(val)) strength += 25;
 
             fill.style.width = strength + '%';
 
-            if(strength <= 25) {
+            if (strength <= 25) {
                 fill.style.backgroundColor = '#ff4d4d'; // Red
                 text.innerText = "Weak";
             } else if (strength <= 50) {
@@ -447,4 +479,5 @@
         animate();
     </script>
 </body>
+
 </html>

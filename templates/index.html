@@ -487,15 +487,15 @@
 
     <nav>
         <div class="container nav-inner">
-            <a href="index.html" class="logo">
+            <a href="{% url 'index' %}" class="logo">
                 <i data-lucide="zap" style="color: var(--primary);"></i>
                 SCHOLARCASH
             </a>
             <div class="nav-links">
-                <a href="index.html" class="nav-link">Home</a>
+                <a href="{% url 'index' %}" class="nav-link">Home</a>
                 <a href="#how-it-works" class="nav-link">How it Works</a>
-                <a href="team.html" class="nav-link">Team</a>
-                <a href="login.html" class="nav-link nav-btn">Login</a>
+                <a href="{% url 'team' %}" class="nav-link">Team</a>
+                <a href="{% url 'login' %}" class="nav-link nav-btn">Login</a>
             </div>
         </div>
     </nav>
@@ -505,8 +505,8 @@
             <h2 style="font-family: var(--font-display); font-size: 2rem; margin-bottom: 0.5rem;">Get Started</h2>
             <p style="color: var(--text-muted); margin-bottom: 2rem;">Join the ecosystem today.</p>
 
-            <a href="login.html" class="modal-btn btn-outline">I have an account</a>
-            <a href="register.html" class="modal-btn btn-primary">I am a new student</a>
+            <a href="{% url 'login' %}" class="modal-btn btn-outline">I have an account</a>
+            <a href="{% url 'register' %}" class="modal-btn btn-primary">I am a new student</a>
 
             <div class="close-modal" onclick="toggleModal()">Close</div>
         </div>
@@ -603,9 +603,9 @@
     <footer>
         <div class="container">
             <div class="footer-links">
-                <a href="index.html">Home</a>
-                <a href="team.html">Our Team</a>
-                <a href="login.html">Admin Portal</a>
+                <a href="{% url 'index' %}">Home</a>
+                <a href="{% url 'team' %}">Our Team</a>
+                <a href="{% url 'login' %}">Admin Portal</a>
                 <a href="#">Privacy Policy</a>
             </div>
             <p style="color: #555; font-size: 0.8rem;">
