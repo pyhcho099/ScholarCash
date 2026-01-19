@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Team | ScholarCash</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-deep: #050505;
+            --primary: #00ff9d;
+            --secondary: #00b8ff;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            
+            --glass-bg: rgba(20, 20, 20, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- WebGL Background --- */
+        #gl-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s;
+        }
+        .back-link:hover { color: var(--primary); }
+
+        /* --- Header --- */
+        .team-header {
+            text-align: center;
+            padding: 4rem 1rem;
+        }
+
+        .team-header h1 {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, #999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .team-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- Grid Layout --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 5rem 2rem;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            justify-content: center;
+        }
+
+        /* --- Member Card (Holographic Style) --- */
+        .member-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(10px);
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            transition: all 0.3s ease;
+        }
+
+        .member-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(0, 255, 157, 0.15);
+        }
+
+        /* Avatar Container */
+        .avatar-box {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.5rem auto;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            padding: 5px;
+            position: relative;
+            transform: translateZ(20px);
+        }
+
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            filter: grayscale(100%);
+            transition: filter 0.3s;
+        }
+
+        .member-card:hover .avatar-box img {
+            filter: grayscale(0%);
+        }
+
+        .role-badge {
+            background: rgba(0, 255, 157, 0.1);
+            color: var(--primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 1rem;
+            transform: translateZ(15px);
+        }
+
+        h3 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            transform: translateZ(30px);
+        }
+
+        .bio {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            transform: translateZ(20px);
+        }
+
+        /* Tech Stack Icons */
+        .tech-stack {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            transform: translateZ(25px);
+        }
+
+        .tech-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: color 0.3s, background 0.3s;
+        }
+
+        .tech-icon:hover {
+            color: var(--primary);
+            background: rgba(0, 255, 157, 0.1);
+        }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="gl-canvas"></canvas>
+
+    <nav class="container">
+        <a href="index.html" class="back-link">
+            <i data-lucide="arrow-left"></i> Back to Home
+        </a>
+    </nav>
+
+    <header class="team-header">
+        <h1>THE CREATORS</h1>
+        <p>The minds behind the ScholarCash ecosystem.</p>
+    </header>
+
+    <section class="container">
+        <div class="team-grid">
+
+            <div class="member-card" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2">
+                <div class="avatar-box">
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80" alt="Member 1">
+                </div>
+                <span class="role-badge">Lead Developer</span>
+                <h3>[Name Here]</h3>
+                <p class="bio">Full-stack wizard. Built the core ledger system and ensured the security of every transaction.</p>
+                <div class="tech-stack">
+                    <div class="tech-icon" title="Python"><i data-lucide="code"></i></div>
+                    <div class="tech-icon" title="Database"><i data-lucide="database"></i></div>
+                </div>
+            </div>
+
+            <div class="member-card" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2">
+                <div class="avatar-box">
+                    <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=200&q=80" alt="Member 2">
+                </div>
+                <span class="role-badge">UI/UX Designer</span>
+                <h3>[Name Here]</h3>
+                <p class="bio">The artist. Designed the Cyber Neon interface and crafted the user experience for students.</p>
+                <div class="tech-stack">
+                    <div class="tech-icon" title="Design"><i data-lucide="pen-tool"></i></div>
+                    <div class="tech-icon" title="Frontend"><i data-lucide="layout"></i></div>
+                </div>
+            </div>
+
+            <div class="member-card" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2">
+                <div class="avatar-box">
+                    <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=200&q=80" alt="Member 3">
+                </div>
+                <span class="role-badge">Backend Engineer</span>
+                <h3>[Name Here]</h3>
+                <p class="bio">The architect. Managed server logic, API integrations, and QR code generation systems.</p>
+                <div class="tech-stack">
+                    <div class="tech-icon" title="Server"><i data-lucide="server"></i></div>
+                    <div class="tech-icon" title="Security"><i data-lucide="shield"></i></div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // Standard Background Logic (Same as other pages)
+        const canvas = document.getElementById('gl-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, -1);
+        
+        function resize() {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if(material.uniforms) material.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
+        }
+        window.addEventListener('resize', resize);
+
+        const uniforms = {
+            time: { value: 0.0 },
+            resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+            xScale: { value: 1.0 }, yScale: { value: 0.5 }, distortion: { value: 0.05 }
+        };
+
+        const material = new THREE.RawShaderMaterial({
+            vertexShader: `attribute vec3 position; void main() { gl_Position = vec4(position, 1.0); }`,
+            fragmentShader: `
+                precision highp float;
+                uniform vec2 resolution; uniform float time;
+                void main() {
+                    vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
+                    float r = 0.05 / abs(p.y + sin((p.x + time) * 1.0) * 0.5);
+                    gl_FragColor = vec4(r * 0.1, r * 0.9, r * 0.8, 1.0);
+                }
+            `,
+            uniforms
+        });
+        
+        scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+        resize();
+
+        function animate() {
+            uniforms.time.value += 0.005;
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>

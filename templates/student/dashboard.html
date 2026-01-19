@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard | ScholarCash</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.29/dist/lenis.min.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #050505;
+            --primary: #00ff9d;
+            --primary-dim: rgba(0, 255, 157, 0.1);
+            --secondary: #00b8ff;
+            --danger: #ff4d4d;
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.6);
+
+            --glass-bg: rgba(20, 20, 20, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --card-radius: 20px;
+
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+            pointer-events: none;
+            background: #050505;
+        }
+
+        /* --- HEADER --- */
+        header {
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(5, 5, 5, 0.9), transparent);
+        }
+
+        .brand {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .user-pill {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            padding: 6px 12px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        /* --- SCROLL CONTAINER --- */
+        .scroll-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 24px 120px 24px;
+            z-index: 5;
+            opacity: 1;
+        }
+
+        html.lenis,
+        html.lenis body {
+            height: auto;
+        }
+
+        .lenis.lenis-smooth {
+            scroll-behavior: auto !important;
+        }
+
+        /* --- WALLET CARD --- */
+        .wallet-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            border-radius: var(--card-radius);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 24px;
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+        }
+
+        .wallet-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+        }
+
+        .card-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .balance-wrapper {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .currency-symbol {
+            font-size: 2rem;
+            color: var(--primary);
+            font-family: var(--font-display);
+        }
+
+        .balance-amount {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1;
+            background: linear-gradient(180deg, #fff, #bbb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 15px;
+        }
+
+        /* --- ACTION GRID --- */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .action-btn {
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid var(--glass-border);
+            padding: 15px 5px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--text-main);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .action-btn i {
+            margin-bottom: 2px;
+        }
+
+        .action-btn:active {
+            transform: scale(0.96);
+            border-color: var(--primary);
+        }
+
+        /* --- TRANSACTIONS --- */
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tx-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tx-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 1;
+        }
+
+        .tx-left {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .tx-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+
+        .tx-amount {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .tx-amount.positive {
+            color: var(--primary);
+        }
+
+        .tx-amount.negative {
+            color: var(--text-muted);
+        }
+
+        /* --- DOCK --- */
+        .dock-wrapper {
+            position: fixed;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .dock {
+            pointer-events: auto;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 10px 20px;
+            border-radius: 100px;
+            display: flex;
+            gap: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .dock-item {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .dock-item.active {
+            color: #000;
+            background: var(--primary);
+            box-shadow: 0 0 15px var(--primary-dim);
+        }
+
+        /* --- MODALS --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .modal-sheet {
+            background: #111;
+            border-top: 1px solid var(--primary);
+            border-radius: 24px 24px 0 0;
+            width: 100%;
+            padding: 30px 24px;
+            transform: translateY(100%);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        /* Inputs & Buttons */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--glass-border);
+            padding: 12px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-action {
+            width: 100%;
+            background: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+
+        .btn-action.primary {
+            background: var(--primary);
+            color: #000;
+        }
+
+        /* Views */
+        .tab-view {
+            display: none;
+        }
+
+        .tab-view.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Analytics Chart */
+        .chart-placeholder {
+            height: 200px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .bar {
+            width: 15%;
+            background: var(--primary);
+            border-radius: 4px 4px 0 0;
+            opacity: 0.7;
+            height: 10px;
+            transition: height 1s ease;
+        }
+
+        /* Profile Specifics */
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #333;
+            margin: 0 auto 15px;
+            border: 2px solid var(--primary);
+        }
+
+        .menu-item {
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 12px;
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+
+        .menu-item:hover {
+            border-color: var(--glass-border);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .toggle-switch {
+            width: 40px;
+            height: 22px;
+            background: #333;
+            border-radius: 20px;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .toggle-switch.on {
+            background: var(--primary);
+        }
+
+        .toggle-dot {
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s;
+        }
+
+        .toggle-switch.on .toggle-dot {
+            transform: translateX(18px);
+        }
+
+        .badge-grid {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: none;
+        }
+
+        .badge-item {
+            min-width: 80px;
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        /* Stats Bars (Gamification) */
+        .stats-container {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 15px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .progress-bar {
+            width: 60%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="canvas-bg"></div>
+
+    <header>
+        <div class="brand">
+            <i data-lucide="zap" style="color: var(--primary); width: 20px;"></i>
+            SCHOLARCASH
+        </div>
+        <div class="user-pill">
+            <div class="status-dot"></div>
+            ID: {{ request.user.student_id|default:"N/A" }}
+        </div>
+    </header>
+
+    <div class="scroll-container" id="scroll-wrapper">
+
+        <div id="view-wallet" class="tab-view active">
+            <div class="wallet-card" data-tilt>
+                <div class="card-label">Available Balance</div>
+                <div class="balance-wrapper">
+                    <span class="currency-symbol">◈</span>
+                    <span class="balance-amount" id="balance-display">0</span>
+                </div>
+                <div class="card-footer">
+                    <span>Student Ledger</span>
+                    <span>**** {{ request.user.student_id|slice:"-4:" }}</span>
+                </div>
+            </div>
+
+            <div class="action-grid">
+                <div class="action-btn" onclick="toggleModal('send', true)">
+                    <i data-lucide="send" style="color: var(--secondary);"></i><span>Send</span>
+                </div>
+                <div class="action-btn" onclick="toggleModal('receive', true)">
+                    <i data-lucide="qr-code" style="color: var(--primary);"></i><span>Receive</span>
+                </div>
+                <div class="action-btn" onclick="toggleModal('shop', true)">
+                    <i data-lucide="shopping-bag" style="color: #ff0055;"></i><span>Market</span>
+                </div>
+            </div>
+
+            <div class="section-title">
+                <span>Recent Activity</span>
+                <i data-lucide="history" size="16" style="opacity: 0.5"></i>
+            </div>
+            <div class="tx-list" id="tx-container"></div>
+        </div>
+
+        <div id="view-analytics" class="tab-view">
+            <div class="section-title"><span>Weekly Growth</span></div>
+            <div class="chart-placeholder">
+                <div class="bar" data-height="40%"></div>
+                <div class="bar" data-height="60%"></div>
+                <div class="bar" data-height="30%"></div>
+                <div class="bar" data-height="80%" style="background: var(--secondary);"></div>
+                <div class="bar" data-height="50%"></div>
+            </div>
+            <div class="section-title"><span>Summary</span></div>
+            <div class="menu-item">
+                <span>Total Earned</span><span style="color: var(--primary)">+2,500</span>
+            </div>
+            <div class="menu-item">
+                <span>Total Spent</span><span style="color: var(--danger)">-1,250</span>
+            </div>
+        </div>
+
+        <div id="view-profile" class="tab-view">
+
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div class="profile-pic"></div>
+                <h2 style="font-family: var(--font-display);">John Doe</h2>
+                <p style="color: var(--text-muted);">Class 11-A</p>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-row">
+                    <span>Attendance</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 95%;"></div>
+                    </div>
+                </div>
+                <div class="stat-row">
+                    <span>Assignments</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill"
+                            style="width: 80%; background: var(--secondary); box-shadow: 0 0 10px var(--secondary);">
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-row">
+                    <span>Karma</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill"
+                            style="width: 60%; background: #ff0055; box-shadow: 0 0 10px #ff0055;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-item" onclick="toggleModal('receive', true)">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <i data-lucide="qr-code" style="color: var(--secondary);"></i><span>My Digital ID</span>
+                </div>
+                <i data-lucide="chevron-right" size="16" style="opacity:0.5;"></i>
+            </div>
+
+            <div class="section-title" style="margin-top: 20px;"><span>Achievements</span></div>
+            <div class="badge-grid">
+                <div class="badge-item">
+                    <div style="font-size: 2rem;">🎓</div>
+                    <div style="font-size: 0.7rem; color: #888;">Scholar</div>
+                </div>
+                <div class="badge-item">
+                    <div style="font-size: 2rem;">🔥</div>
+                    <div style="font-size: 0.7rem; color: #888;">Streak</div>
+                </div>
+                <div class="badge-item">
+                    <div style="font-size: 2rem;">💎</div>
+                    <div style="font-size: 0.7rem; color: #888;">Saver</div>
+                </div>
+            </div>
+
+            <div class="section-title" style="margin-top: 20px;"><span>Account</span></div>
+
+            <div class="menu-item" onclick="toggleModal('settings', true)">
+                <div style="display:flex; gap:10px; align-items:center;"><i
+                        data-lucide="settings"></i><span>Settings</span></div>
+                <i data-lucide="chevron-right" size="16" style="opacity:0.5;"></i>
+            </div>
+
+            <div class="menu-item">
+                <div style="display:flex; gap:10px; align-items:center;"><i data-lucide="clock"></i><span>Order
+                        History</span></div>
+                <i data-lucide="chevron-right" size="16" style="opacity:0.5;"></i>
+            </div>
+
+            <div class="menu-item">
+                <div style="display:flex; gap:10px; align-items:center;"><i data-lucide="help-circle"></i><span>Help &
+                        Support</span></div>
+                <i data-lucide="external-link" size="16" style="opacity:0.5;"></i>
+            </div>
+
+            <a href="{% url 'logout' %}" style="text-decoration: none; color: inherit;">
+                <div class="menu-item" style="border: 1px solid var(--danger); color: var(--danger); margin-top: 20px;">
+                    <div style="display:flex; gap:10px; align-items:center;"><i data-lucide="log-out"></i><span>Log
+                            Out</span></div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <div class="dock-wrapper">
+        <div class="dock">
+            <div class="dock-item active" onclick="switchTab('wallet', this)"><i data-lucide="wallet"></i></div>
+            <div class="dock-item" onclick="switchTab('analytics', this)"><i data-lucide="bar-chart-2"></i></div>
+            <div class="dock-item" onclick="switchTab('profile', this)"><i data-lucide="user"></i></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-send">
+        <div class="modal-sheet">
+            <div class="sheet-header">
+                <h2>Transfer Assets</h2><i data-lucide="x" class="close-btn" onclick="toggleModal('send', false)"></i>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Recipient ID</label>
+                <div style="position: relative;"><i data-lucide="user"
+                        style="position: absolute; top: 12px; left: 12px; color: #666; width: 18px;"></i><input
+                        type="text" class="form-input" id="send-id" placeholder="e.g. 8821" style="padding-left: 40px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Amount</label>
+                <div style="position: relative;"><span
+                        style="position: absolute; top: 12px; left: 12px; color: var(--primary); font-weight: bold;">◈</span><input
+                        type="number" class="form-input" id="send-amount" placeholder="0.00"
+                        style="padding-left: 35px;"></div>
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; text-align: right;">Balance:
+                <span style="color: var(--primary);">◈ <span id="modal-bal"></span></span>
+            </div>
+            <button class="btn-action primary" onclick="processSend()">Send Assets</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-shop">
+        <div class="modal-sheet">
+            <div class="sheet-header">
+                <h2>Campus Market</h2><i data-lucide="x" class="close-btn" onclick="toggleModal('shop', false)"></i>
+            </div>
+            <div class="shop-grid">
+                {% for item in inventory_items %}
+                <div class="shop-item">
+                    <div style="font-size: 2rem;">🛍️</div>
+                    <h3>{{ item.name }}</h3>
+                    <div style="color: var(--primary); font-weight: 700;">{{ item.price }} ◈</div>
+                    {% if item.stock_quantity > 0 %}
+                    <a href="{% url 'purchase_item' item.id %}" class="btn-action"
+                        style="text-align: center; text-decoration: none; display:block;">Buy</a>
+                    {% else %}
+                    <button class="btn-action" disabled style="opacity: 0.5;">Out of Stock</button>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p style="color: var(--text-muted); text-align: center; grid-column: 1/-1;">No items available right
+                    now.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-receive">
+        <div class="modal-sheet" style="text-align: center;">
+            <div class="sheet-header">
+                <h2>My ID Code</h2><i data-lucide="x" class="close-btn" onclick="toggleModal('receive', false)"></i>
+            </div>
+            <div style="background: #fff; padding: 20px; border-radius: 20px; display: inline-block; margin: 20px 0;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=scholar-8821" alt="QR">
+            </div>
+            <p style="font-family: monospace; font-size: 1.5rem; letter-spacing: 5px; color: var(--primary);">8821</p>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-settings">
+        <div class="modal-sheet">
+            <div class="sheet-header">
+                <h2>Settings</h2><i data-lucide="x" class="close-btn" onclick="toggleModal('settings', false)"></i>
+            </div>
+            <div class="section-title"><span>Preferences</span></div>
+            <div class="menu-item"><span>Push Notifications</span>
+                <div class="toggle-switch on" onclick="this.classList.toggle('on')">
+                    <div class="toggle-dot"></div>
+                </div>
+            </div>
+            <div class="menu-item"><span>Dark Mode</span>
+                <div class="toggle-switch on" onclick="this.classList.toggle('on')">
+                    <div class="toggle-dot"></div>
+                </div>
+            </div>
+            <div class="section-title" style="margin-top: 20px;"><span>Security</span></div>
+            <div class="menu-item"><span>Change Password</span><i data-lucide="chevron-right"></i></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        lucide.createIcons();
+        try { const lenis = new Lenis({ wrapper: document.getElementById('scroll-wrapper'), content: document.getElementById('scroll-wrapper'), smooth: true, duration: 1.2 }); function raf(time) { lenis.raf(time); requestAnimationFrame(raf); } requestAnimationFrame(raf); } catch (e) { }
+
+        let balance = parseFloat("{{ wallet.balance|default:0 }}");
+        const balObj = { val: balance }; // Initialize with real balance
+        function updateDisplay() {
+            document.getElementById("balance-display").innerText = Math.floor(balObj.val).toLocaleString();
+            const modalBal = document.getElementById("modal-bal");
+            if (modalBal) modalBal.innerText = Math.floor(balObj.val).toLocaleString();
+        }
+
+        // Initialize immediately
+        updateDisplay();
+
+        gsap.to(balObj, { val: balance, duration: 1.5, ease: "power2.out", onUpdate: updateDisplay });
+        gsap.from("header", { y: -50, opacity: 0, duration: 0.8, delay: 0.2 });
+        gsap.from(".wallet-card", { y: 30, opacity: 0, duration: 0.8, delay: 0.4 });
+        gsap.from(".dock-wrapper", { y: 100, opacity: 0, duration: 0.8, delay: 0.6 });
+
+        const txData = [
+            {% for t in transactions %}
+        {
+            name: "{{ t.description|escapejs }}",
+                date: "{{ t.timestamp|date:'M d, g:i A' }}",
+                    amount: { { t.amount } },
+            type: "{% if t.receiver == request.user %}in{% else %}out{% endif %}",
+                icon: "{% if t.receiver == request.user %}plus-circle{% else %}shopping-bag{% endif %}"
+        },
+        {% endfor %}
+        ];
+
+        function renderTransactions() {
+            const container = document.getElementById('tx-container'); container.innerHTML = '';
+            txData.forEach((tx) => {
+                // Fix logic: if type is 'out', amount should be shown as negative if not already
+                const isPositive = tx.type === 'in';
+                const colorClass = isPositive ? 'positive' : 'negative';
+                const sign = isPositive ? '+' : '-';
+                // Note: t.amount is usually positive in DB, so we add sign manually
+                container.innerHTML += `<div class="tx-item"><div class="tx-left"><div class="tx-icon"><i data-lucide="${tx.icon}" size="20"></i></div><div class="tx-info"><h4>${tx.name}</h4><p>${tx.date}</p></div></div><div class="tx-amount ${colorClass}">${sign}${tx.amount}</div></div>`;
+            });
+            lucide.createIcons();
+            gsap.to(".tx-item", { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, delay: 0.1 });
+        }
+        renderTransactions();
+
+        function switchTab(viewId, element) {
+            document.querySelectorAll('.dock-item').forEach(el => el.classList.remove('active')); element.classList.add('active');
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active')); document.getElementById('view-' + viewId).classList.add('active');
+            if (viewId === 'analytics') {
+                gsap.to(".bar", { height: (i, target) => target.getAttribute("data-height"), duration: 1, stagger: 0.1, ease: "power2.out" });
+            }
+        }
+
+        function toggleModal(id, isOpen) {
+            const overlay = document.getElementById(`modal-${id}`); const sheet = overlay.querySelector('.modal-sheet');
+            if (isOpen) { overlay.style.pointerEvents = "auto"; gsap.to(overlay, { opacity: 1, duration: 0.3 }); gsap.to(sheet, { y: 0, duration: 0.5, ease: "power3.out" }); updateDisplay(); }
+            else { overlay.style.pointerEvents = "none"; gsap.to(overlay, { opacity: 0, duration: 0.3 }); gsap.to(sheet, { y: "100%", duration: 0.3 }); }
+        }
+
+        function processSend() {
+            const id = document.getElementById('send-id').value; const amount = parseInt(document.getElementById('send-amount').value);
+            if (!id || !amount) { alert("Please fill details"); return; }
+            if (amount > balance) { alert("Insufficient funds"); return; }
+            const btn = document.querySelector('#modal-send .btn-action'); const originalText = btn.innerText; btn.innerText = "Sending...";
+            setTimeout(() => {
+                balance -= amount; gsap.to(balObj, { val: balance, duration: 1, onUpdate: updateDisplay });
+                txData.unshift({ name: `Sent to ${id}`, date: "Just Now", amount: -amount, type: "out", icon: "send" });
+                btn.innerText = "Sent!";
+                setTimeout(() => { toggleModal('send', false); renderTransactions(); btn.innerText = originalText; document.getElementById('send-id').value = ""; document.getElementById('send-amount').value = ""; }, 800);
+            }, 1000);
+        }
+
+        function buyItem(cost, itemName) {
+            if (balance >= cost) {
+                balance -= cost; gsap.to(balObj, { val: balance, duration: 1, onUpdate: updateDisplay });
+                txData.unshift({ name: itemName, date: "Just Now", amount: -cost, type: "out", icon: "shopping-bag" });
+                toggleModal('shop', false); renderTransactions();
+            } else { gsap.to(".wallet-card", { x: 10, duration: 0.1, yoyo: true, repeat: 5 }); }
+        }
+
+        // WebGL
+        try {
+            const canvas = document.getElementById('canvas-bg'); const renderer = new THREE.WebGLRenderer({ canvas: document.createElement('canvas'), alpha: true }); canvas.appendChild(renderer.domElement);
+            const scene = new THREE.Scene(); const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, -1);
+            const material = new THREE.RawShaderMaterial({
+                vertexShader: `attribute vec3 position; void main() { gl_Position = vec4(position, 1.0); }`,
+                fragmentShader: `precision highp float; uniform vec2 resolution; uniform float time; void main() { vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y); float r = 0.05 / abs(p.y + sin((p.x + time) * 1.0) * 0.5); gl_FragColor = vec4(r * 0.0, r * 0.8, r * 0.6, 1.0); }`,
+                uniforms: { time: { value: 0.0 }, resolution: { value: new THREE.Vector2() } }
+            });
+            scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+            function resize() { renderer.setSize(window.innerWidth, window.innerHeight); material.uniforms.resolution.value.set(window.innerWidth, window.innerHeight); renderer.domElement.style.width = "100%"; renderer.domElement.style.height = "100%"; }
+            window.addEventListener('resize', resize); resize();
+            function animate() { material.uniforms.time.value += 0.01; renderer.render(scene, camera); requestAnimationFrame(animate); } animate();
+        } catch (e) { }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Command | ScholarCash</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.29/dist/lenis.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #050505;
+            --surface: #0a0a0a;
+            --primary: #00ff9d;
+            --primary-dim: rgba(0, 255, 157, 0.1);
+            --secondary: #00b8ff;
+            --danger: #ff4d4d;
+            --warning: #facc15;
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.5);
+
+            --glass-bg: rgba(20, 20, 20, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --card-radius: 16px;
+
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* --- BACKGROUND --- */
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+            pointer-events: none;
+            background: #050505;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .brand {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 3rem;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background: var(--primary-dim);
+            color: var(--primary);
+            border: 1px solid rgba(0, 255, 157, 0.2);
+        }
+
+        .admin-profile {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #333;
+            border: 2px solid var(--secondary);
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex: 1;
+            padding: 2rem 3rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .date-badge {
+            font-family: monospace;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--glass-border);
+        }
+
+        /* --- KPI GRID --- */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .kpi-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+        }
+
+        .kpi-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.02));
+            pointer-events: none;
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .kpi-trend {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 0.5rem;
+        }
+
+        .trend-up {
+            color: var(--primary);
+        }
+
+        .trend-down {
+            color: var(--danger);
+        }
+
+        /* --- DASHBOARD SECTIONS --- */
+        .dashboard-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .panel {
+            background: rgba(15, 15, 15, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .panel-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* Quick Actions List */
+        .action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .admin-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            padding: 1rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .admin-btn:hover {
+            border-color: var(--primary);
+            background: rgba(0, 255, 157, 0.05);
+        }
+
+        .admin-btn.primary {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            justify-content: center;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .admin-btn.primary:hover {
+            background: #fff;
+        }
+
+        /* --- TABLE --- */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-success {
+            background: rgba(0, 255, 157, 0.1);
+            color: var(--primary);
+        }
+
+        .status-warn {
+            background: rgba(250, 204, 21, 0.1);
+            color: var(--warning);
+        }
+
+        /* --- MODAL (GENERAL) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .modal-card {
+            background: #111;
+            border: 1px solid var(--glass-border);
+            width: 400px;
+            padding: 2rem;
+            border-radius: 20px;
+            transform: translateY(20px);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--glass-border);
+            padding: 12px;
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="canvas-bg"></div>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <i data-lucide="zap"></i> SCHOLAR<br>ADMIN
+        </div>
+
+        <nav class="nav-menu">
+            <a href="{% url 'admin_dashboard' %}" class="nav-item active"><i data-lucide="layout-dashboard"
+                    size="18"></i>
+                Overview</a>
+            <a href="{% url 'admin_users' %}" class="nav-item"><i data-lucide="users" size="18"></i> Students</a>
+            <a href="{% url 'admin_inventory' %}" class="nav-item"><i data-lucide="shopping-bag" size="18"></i>
+                Inventory</a>
+            <a href="{% url 'admin_logs' %}" class="nav-item"><i data-lucide="file-text" size="18"></i> Audit Logs</a>
+            <a href="{% url 'admin_settings' %}" class="nav-item"><i data-lucide="settings" size="18"></i> Settings</a>
+        </nav>
+
+        <div class="admin-profile">
+            <div class="avatar"></div>
+            <div>
+                <div style="font-weight: 600; font-size: 0.9rem;">Principal.sys</div>
+                <div style="font-size: 0.8rem; color: var(--primary);">Super Admin</div>
+            </div>
+            <a href="{% url 'logout' %}" style="margin-left: auto; color: var(--text-muted);"><i data-lucide="log-out"
+                    size="18"></i></a>
+        </div>
+    </aside>
+
+    <main class="main-content" id="scroll-wrapper">
+
+        <header>
+            <div>
+                <h1>Command Center</h1>
+                <p style="color: var(--text-muted);">System Overview & Controls</p>
+            </div>
+            <div class="date-badge" id="date-display">2025-12-21</div>
+        </header>
+
+        <div class="kpi-grid">
+            <div class="kpi-card" data-tilt data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.2">
+                <div class="kpi-label">Total Active Students</div>
+                <div class="kpi-value">1,420</div>
+                <div class="kpi-trend trend-up"><i data-lucide="trending-up" size="14"></i> +12% this week</div>
+            </div>
+
+            <div class="kpi-card" data-tilt data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.2">
+                <div class="kpi-label">Circulation Supply</div>
+                <div class="kpi-value" style="color: var(--secondary);">850k ◈</div>
+                <div class="kpi-trend trend-up"><i data-lucide="activity" size="14"></i> Minting Active</div>
+            </div>
+
+            <div class="kpi-card" data-tilt data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.2">
+                <div class="kpi-label">Shop Volume (30d)</div>
+                <div class="kpi-value" style="color: var(--warning);">32.5k</div>
+                <div class="kpi-trend trend-down"><i data-lucide="trending-down" size="14"></i> -5% vs last month</div>
+            </div>
+        </div>
+
+        <div class="dashboard-row">
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">Economy Flow</span>
+                    <select
+                        style="background: transparent; color: var(--text-muted); border: 1px solid var(--glass-border); padding: 4px; border-radius: 4px;">
+                        <option>Last 7 Days</option>
+                        <option>Last 30 Days</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <canvas id="economyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header"><span class="panel-title">Quick Actions</span></div>
+                <div class="action-list">
+                    <button class="admin-btn primary" onclick="toggleModal('mint', true)">
+                        <i data-lucide="coins"></i> Mint Coins
+                    </button>
+                    <button class="admin-btn" onclick="toggleModal('enroll', true)">
+                        <i data-lucide="user-plus" style="color: var(--secondary);"></i> Enroll Student
+                    </button>
+                    <button class="admin-btn">
+                        <i data-lucide="alert-triangle" style="color: var(--danger);"></i> System Freeze
+                    </button>
+                    <button class="admin-btn">
+                        <i data-lucide="download"></i> Export Reports
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title">Live Ledger</span>
+                <span style="font-size: 0.8rem; color: var(--primary);">● Live</span>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>TX ID</th>
+                            <th>Action</th>
+                            <th>User</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-family: monospace; opacity: 0.7;">#TX-9921</td>
+                            <td>Shop Purchase</td>
+                            <td>Alex Chen (11-A)</td>
+                            <td style="color: var(--danger);">-50 ◈</td>
+                            <td><span class="status-badge status-success">Completed</span></td>
+                            <td>Just Now</td>
+                        </tr>
+                        <tr>
+                            <td style="font-family: monospace; opacity: 0.7;">#TX-9920</td>
+                            <td>Reward Mint</td>
+                            <td>Sarah V. (10-B)</td>
+                            <td style="color: var(--primary);">+100 ◈</td>
+                            <td><span class="status-badge status-success">Success</span></td>
+                            <td>2 mins ago</td>
+                        </tr>
+                        <tr>
+                            <td style="font-family: monospace; opacity: 0.7;">#TX-9919</td>
+                            <td>Peer Transfer</td>
+                            <td>Mike Ross (12-S)</td>
+                            <td style="color: var(--text-muted);">200 ◈</td>
+                            <td><span class="status-badge status-warn">Pending</span></td>
+                            <td>5 mins ago</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <div class="modal-overlay" id="modal-mint">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
+                <h2 style="font-family: var(--font-display);">Mint Currency</h2>
+                <i data-lucide="x" style="cursor: pointer; color: var(--text-muted);"
+                    onclick="toggleModal('mint', false)"></i>
+            </div>
+
+            <div class="input-group">
+                <label>Student ID / Class</label>
+                <input type="text" class="input-field" placeholder="e.g. 8821 or 11-A (All)">
+            </div>
+
+            <div class="input-group">
+                <label>Amount (◈)</label>
+                <input type="number" class="input-field" placeholder="100">
+            </div>
+
+            <div class="input-group">
+                <label>Reason Code</label>
+                <select class="input-field">
+                    <option>Academic Excellence</option>
+                    <option>Sports Achievement</option>
+                    <option>Community Service</option>
+                    <option>Custom Adjustment</option>
+                </select>
+            </div>
+
+            <button class="admin-btn primary" style="width: 100%; margin-top: 1rem;"
+                onclick="toggleModal('mint', false)">
+                Confirm Transaction
+            </button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-enroll">
+        <div class="modal-card" style="border-color: var(--secondary);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
+                <h2 style="font-family: var(--font-display);">Enroll Student</h2>
+                <i data-lucide="x" style="cursor: pointer; color: var(--text-muted);"
+                    onclick="toggleModal('enroll', false)"></i>
+            </div>
+
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" class="input-field" id="enroll-name" placeholder="John Doe">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="input-group">
+                    <label>Student ID</label>
+                    <input type="text" class="input-field" id="enroll-id" placeholder="8822">
+                </div>
+                <div class="input-group">
+                    <label>Class Section</label>
+                    <select class="input-field" id="enroll-class">
+                        <option>10-A</option>
+                        <option>10-B</option>
+                        <option>11-Sci</option>
+                        <option>11-Com</option>
+                        <option>12-Sci</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Initial Balance (Bonus)</label>
+                <input type="number" class="input-field" placeholder="50">
+            </div>
+
+            <button class="admin-btn"
+                style="width: 100%; margin-top: 1rem; background: var(--secondary); border: none; font-weight: 700; color: #000;"
+                onclick="enrollStudent(this)">
+                Create Profile
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // 1. Icons & Date
+        lucide.createIcons();
+        document.getElementById('date-display').innerText = new Date().toISOString().split('T')[0];
+
+        // 2. Lenis Smooth Scroll
+        const lenis = new Lenis({ wrapper: document.getElementById('scroll-wrapper'), content: document.getElementById('scroll-wrapper') });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+
+        // 3. GSAP Animations
+        gsap.from(".sidebar", { x: -50, opacity: 0, duration: 1, ease: "power3.out" });
+        gsap.from("header", { y: -20, opacity: 0, duration: 0.8, delay: 0.3 });
+        gsap.from(".kpi-card", { y: 20, opacity: 0, duration: 0.6, stagger: 0.1, delay: 0.5 });
+        gsap.from(".panel", { y: 20, opacity: 0, duration: 0.6, stagger: 0.1, delay: 0.7 });
+
+        // 4. Chart.js
+        const ctx = document.getElementById('economyChart').getContext('2d');
+        const gradientMint = ctx.createLinearGradient(0, 0, 0, 300);
+        gradientMint.addColorStop(0, 'rgba(0, 255, 157, 0.5)');
+        gradientMint.addColorStop(1, 'rgba(0, 255, 157, 0)');
+        const gradientRed = ctx.createLinearGradient(0, 0, 0, 300);
+        gradientRed.addColorStop(0, 'rgba(255, 77, 77, 0.5)');
+        gradientRed.addColorStop(1, 'rgba(255, 77, 77, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [
+                    { label: 'Minted (In)', data: [1200, 1900, 1500, 2200, 1800, 900, 1400], borderColor: '#00ff9d', backgroundColor: gradientMint, fill: true, tension: 0.4 },
+                    { label: 'Spent (Out)', data: [800, 1200, 900, 1500, 2000, 1100, 1000], borderColor: '#ff4d4d', backgroundColor: gradientRed, fill: true, tension: 0.4 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#888' } } },
+                scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666' } }, x: { grid: { display: false }, ticks: { color: '#666' } } }
+            }
+        });
+
+        // 5. Modal Logic (Generic)
+        function toggleModal(id, isOpen) {
+            const overlay = document.getElementById(`modal-${id}`);
+            const card = overlay.querySelector('.modal-card');
+
+            if (isOpen) {
+                overlay.style.pointerEvents = "flex";
+                gsap.to(overlay, { opacity: 1, duration: 0.3 });
+                gsap.fromTo(card, { y: 20, scale: 0.95 }, { y: 0, scale: 1, duration: 0.4, ease: "back.out(1.7)" });
+            } else {
+                overlay.style.pointerEvents = "none";
+                gsap.to(overlay, { opacity: 0, duration: 0.3 });
+            }
+        }
+
+        // 6. Enroll Logic
+        function enrollStudent(btn) {
+            const name = document.getElementById('enroll-name').value;
+            const id = document.getElementById('enroll-id').value;
+
+            if (!name || !id) {
+                alert("Please fill in Name and ID");
+                return;
+            }
+
+            // Animate Button
+            const originalText = btn.innerText;
+            btn.innerText = "Processing...";
+
+            setTimeout(() => {
+                btn.innerText = "Success!";
+                btn.style.background = "#00ff9d";
+
+                setTimeout(() => {
+                    toggleModal('enroll', false);
+                    btn.innerText = originalText;
+                    btn.style.background = "var(--secondary)";
+                    // Clear inputs
+                    document.getElementById('enroll-name').value = "";
+                    document.getElementById('enroll-id').value = "";
+                }, 1000);
+            }, 800);
+        }
+
+        // 7. WebGL Background (Safe)
+        try {
+            const canvas = document.getElementById('canvas-bg');
+            const renderer = new THREE.WebGLRenderer({ canvas: document.createElement('canvas'), alpha: true });
+            canvas.appendChild(renderer.domElement);
+            const scene = new THREE.Scene();
+            const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, -1);
+            const material = new THREE.RawShaderMaterial({
+                vertexShader: `attribute vec3 position; void main() { gl_Position = vec4(position, 1.0); }`,
+                fragmentShader: `precision highp float; uniform vec2 resolution; uniform float time; void main() { vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y); float r = 0.05 / abs(p.y + sin((p.x + time) * 0.5) * 0.5); gl_FragColor = vec4(r * 0.0, r * 0.3, r * 0.2, 1.0); }`,
+                uniforms: { time: { value: 0.0 }, resolution: { value: new THREE.Vector2() } }
+            });
+            scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+            function resize() { renderer.setSize(window.innerWidth, window.innerHeight); material.uniforms.resolution.value.set(window.innerWidth, window.innerHeight); renderer.domElement.style.width = "100%"; renderer.domElement.style.height = "100%"; }
+            window.addEventListener('resize', resize); resize();
+            function animate() { material.uniforms.time.value += 0.005; renderer.render(scene, camera); requestAnimationFrame(animate); } animate();
+        } catch (e) { }
+    </script>
+</body>
+
+</html>

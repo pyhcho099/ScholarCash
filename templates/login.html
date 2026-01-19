@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | ScholarCash</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* --- 1. Project Variables (Cyber Neon Palette) --- */
+        :root {
+            --bg-deep: #050505;
+            --primary: #00ff9d;      /* Neon Mint */
+            --primary-dark: #00cc7d;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            
+            /* The specific variables for your Form component, mapped to our theme */
+            --form-bg: #111111;
+            --input-focus: var(--primary);
+            --font-color: #ffffff;
+            --font-color-sub: #888888;
+            --main-color: var(--primary); /* The Border/Shadow Color */
+            
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--bg-deep);
+            font-family: var(--font-body);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- WebGL Background Placeholder (Keeps consistency) --- */
+        #gl-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        /* --- Back Link --- */
+        .back-link {
+            position: absolute;
+            top: 2rem; left: 2rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+            font-family: var(--font-display);
+        }
+        .back-link:hover { color: var(--primary); }
+
+        /* --- YOUR INTEGRATED FORM STYLES (Cyber-Brutalist Mode) --- */
+        .form {
+            padding: 20px;
+            background: var(--form-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 20px;
+            border-radius: 5px;
+            border: 2px solid var(--main-color);
+            box-shadow: 6px 6px 0px var(--main-color); /* Hard Shadow */
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .form > p {
+            font-family: var(--font-display);
+            color: var(--font-color);
+            font-weight: 700;
+            font-size: 24px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .form > p > span {
+            font-family: var(--font-body);
+            color: var(--font-color-sub);
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Separator */
+        .separator {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .separator > div {
+            flex: 1;
+            height: 2px;
+            background-color: #333;
+        }
+
+        .separator > span {
+            color: var(--font-color-sub);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* OAuth Buttons */
+        .oauthButton {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            height: 45px;
+            border-radius: 5px;
+            border: 2px solid var(--main-color);
+            background-color: var(--form-bg);
+            box-shadow: 4px 4px 0px var(--main-color); /* Hard Shadow */
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--font-color);
+            cursor: pointer;
+            transition: all 250ms;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            font-family: var(--font-body);
+        }
+
+        .oauthButton::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0;
+            background-color: var(--primary); /* Neon Fill */
+            z-index: -1;
+            transition: all 250ms;
+        }
+
+        .oauthButton:hover {
+            color: #000; /* Text turns black on hover for contrast */
+            box-shadow: 2px 2px 0px var(--main-color); /* Shadow presses down */
+            transform: translate(2px, 2px); /* Button physically moves */
+        }
+
+        .oauthButton:hover::before {
+            width: 100%;
+        }
+
+        /* Fix SVG colors on hover */
+        .oauthButton:hover svg path {
+            fill: #000; /* Make icons black on hover if they are monochrome */
+        }
+        /* Keep original brand colors for Google/Github unless hovered */
+        .oauthButton svg {
+            transition: all 0.2s;
+        }
+
+        /* Inputs */
+        .form > input {
+            width: 100%;
+            height: 45px;
+            border-radius: 5px;
+            border: 2px solid #333;
+            background-color: #000;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--font-color);
+            padding: 5px 15px;
+            outline: none;
+            transition: all 0.3s;
+            font-family: var(--font-body);
+        }
+
+        .form > input:focus {
+            border-color: var(--primary);
+            box-shadow: 4px 4px 0px var(--primary);
+        }
+
+        .form > input::placeholder {
+            color: #555;
+        }
+
+        .icon {
+            width: 1.2rem;
+            height: 1.2rem;
+        }
+
+        /* Special Submit Button Style */
+        .btn-submit {
+            background-color: var(--primary);
+            color: #000;
+            box-shadow: 4px 4px 0px #fff;
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-submit::before {
+            background-color: #fff; /* Hover turns it white */
+        }
+        
+        .btn-submit:hover {
+            border-color: #fff;
+            box-shadow: 2px 2px 0px #fff;
+        }
+                @media (max-width: 480px) {
+            body { padding: 1rem; }
+            .back-link { top: 1rem; left: 1rem; }
+            
+            /* Make buttons stack if they get too squeezed */
+            .oauthButton {
+                font-size: 14px;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <canvas id="gl-canvas"></canvas>
+
+    <a href="index.html" class="back-link">
+        <i data-lucide="arrow-left" style="width: 18px;"></i> Home
+    </a>
+
+    <form action="student/dashboard.html" class="form">
+        <p>
+            Welcome,<span>Sign in to access the terminal</span>
+        </p>
+        
+        <button class="oauthButton" type="button">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+            </svg>
+            Continue with Google
+        </button>
+        
+        <button class="oauthButton" type="button">
+            <svg class="icon" viewBox="0 0 24 24" fill="#fff"> <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path>
+            </svg>
+            Continue with Github
+        </button>
+        
+        <div class="separator">
+            <div></div>
+            <span>OR</span>
+            <div></div>
+        </div>
+        
+        <input type="email" placeholder="Email Address" name="email">
+        <input type="password" placeholder="Password" name="password">
+        
+        <button class="oauthButton btn-submit">
+            Continue
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 17 5-5-5-5"></path><path d="m13 17 5-5-5-5"></path></svg>
+        </button>
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        lucide.createIcons();
+        
+        // --- Standard Background Logic ---
+        const canvas = document.getElementById('gl-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, -1);
+
+        function resize() {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (material.uniforms) material.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
+        }
+        window.addEventListener('resize', resize);
+
+        const uniforms = {
+            time: { value: 0.0 },
+            resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+            xScale: { value: 1.0 }, yScale: { value: 0.5 }, distortion: { value: 0.05 }
+        };
+
+        const vertexShader = `attribute vec3 position; void main() { gl_Position = vec4(position, 1.0); }`;
+        const fragmentShader = `
+            precision highp float;
+            uniform vec2 resolution; uniform float time; uniform float xScale; uniform float yScale; uniform float distortion;
+            void main() {
+                vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
+                float d = length(p) * distortion;
+                float rx = p.x * (1.0 + d); float gx = p.x; float bx = p.x * (1.0 - d);
+                float r = 0.05 / abs(p.y + sin((rx + time) * xScale) * yScale);
+                float g = 0.05 / abs(p.y + sin((gx + time) * xScale) * yScale);
+                float b = 0.05 / abs(p.y + sin((bx + time) * xScale) * yScale);
+                gl_FragColor = vec4(r * 0.1, g * 0.9, b * 0.8, 1.0);
+            }
+        `;
+
+        const material = new THREE.RawShaderMaterial({ vertexShader, fragmentShader, uniforms });
+        scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+        resize();
+
+        function animate() {
+            uniforms.time.value += 0.005;
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>

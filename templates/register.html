@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | ScholarCash</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            /* Palette: Deep Dark with Neon Accents */
+            --bg-core: #050505;
+            --surface: #111111;
+            --primary: #00ff9d;
+            --primary-dim: #00cc7d;
+            --error: #ff4d4d;
+            --warning: #ffd700;
+            --success: #00ff9d;
+            
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border: #333333;
+            
+            /* Design System: Neo-Brutalist Professional */
+            --radius: 6px;
+            --shadow-hard: 5px 5px 0px var(--primary);
+            --shadow-hover: 2px 2px 0px var(--primary);
+            
+            --font-head: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-core);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        /* --- Background Animation --- */
+        #gl-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.25; /* Subtle backdrop */
+        }
+
+        /* --- Main Card Container --- */
+        .register-card {
+            background: var(--surface);
+            border: 2px solid var(--primary);
+            box-shadow: var(--shadow-hard);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 550px; /* Wider for professional spacing */
+            padding: 2.5rem 3rem;
+            position: relative;
+            z-index: 10;
+            transition: transform 0.2s ease;
+        }
+
+        /* --- Header Section --- */
+        .header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .header h1 {
+            font-family: var(--font-head);
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* --- Form Grid Layout --- */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two columns */
+            gap: 1.25rem;
+        }
+
+        .col-full { grid-column: span 2; } /* Spans full width */
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* --- Professional Inputs --- */
+        input, select {
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.85rem 1rem;
+            color: var(--text-main);
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            background: rgba(0, 255, 157, 0.02);
+            box-shadow: 0 0 0 2px rgba(0, 255, 157, 0.1);
+        }
+
+        input::placeholder { color: #444; }
+
+        /* Custom Select Arrow */
+        select {
+            appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ff9d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+        }
+
+        /* --- Password Strength Meter --- */
+        .strength-container {
+            margin-top: -0.5rem;
+        }
+        
+        .strength-bar {
+            height: 4px;
+            background: #222;
+            border-radius: 2px;
+            overflow: hidden;
+            display: flex;
+            margin-top: 5px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        .strength-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        /* --- Checkbox Styling --- */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        .link {
+            color: var(--primary);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        /* --- Action Buttons --- */
+        .actions {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: #000;
+            font-family: var(--font-head);
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            border: 2px solid var(--primary);
+            border-radius: var(--radius);
+            cursor: pointer;
+            box-shadow: 4px 4px 0px #fff; /* White shadow for contrast */
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            top: 0;
+            left: 0;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 2px 2px 0px #fff;
+            transform: translate(2px, 2px);
+        }
+
+        .btn-primary:active {
+            box-shadow: 0px 0px 0px #fff;
+            transform: translate(4px, 4px);
+        }
+
+        .footer-link {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .back-nav {
+            position: absolute;
+            top: -3rem;
+            left: 0;
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        .back-nav:hover { color: var(--primary); }
+                /* --- MOBILE RESPONSIVENESS PATCH --- */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+                align-items: flex-start; /* Allow scrolling on small screens */
+            }
+
+            .register-card {
+                padding: 1.5rem; /* Reduce padding to save space */
+                margin-top: 2rem;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+                align-items: center;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr; /* Force single column */
+                gap: 1rem;
+            }
+
+            .col-full {
+                grid-column: span 1; /* Reset full-width span */
+            }
+            
+            .back-nav {
+                position: static; /* Un-float the back button */
+                margin-bottom: 1rem;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <canvas id="gl-canvas"></canvas>
+
+    <div class="register-card">
+        
+        <a href="login.html" class="back-nav">
+            <i data-lucide="arrow-left" style="width: 16px;"></i> Back to Login
+        </a>
+
+        <div class="header">
+            <div>
+                <h1>Student Reg.</h1>
+                <p>Initialize your ScholarCash ledger ID.</p>
+            </div>
+            <i data-lucide="cpu" style="color: var(--primary); width: 32px; height: 32px;"></i>
+        </div>
+
+        <form action="login.html" onsubmit="return validateForm()">
+            <div class="form-grid">
+                
+                <div class="input-group col-full">
+                    <label>Full Legal Name</label>
+                    <input type="text" placeholder="e.g. Alex Chen" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" placeholder="@student_id" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Class Section</label>
+                    <select required>
+                        <option value="" disabled selected>Select...</option>
+                        <option value="10-A">Class 10 - A</option>
+                        <option value="10-B">Class 10 - B</option>
+                        <option value="11-SCI">11 - Science</option>
+                        <option value="11-COM">11 - Commerce</option>
+                        <option value="12-SCI">12 - Science</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required oninput="checkStrength()">
+                </div>
+
+                <div class="input-group">
+                    <label>Confirm</label>
+                    <input type="password" placeholder="••••••••" required>
+                </div>
+
+                <div class="col-full strength-container">
+                    <div class="strength-bar">
+                        <div class="strength-fill" id="strength-fill"></div>
+                    </div>
+                    <div class="strength-text" id="strength-text">Password Strength: Empty</div>
+                </div>
+
+                <div class="col-full checkbox-group">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms" class="checkbox-label">
+                        I agree to the <a href="#" class="link">Terms of Service</a> & <a href="#" class="link">Privacy Policy</a>
+                    </label>
+                </div>
+
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn-primary">
+                    Create Account
+                </button>
+                <div class="footer-link">
+                    Already have an ID? <a href="login.html" class="link">Sign In</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // --- Password Strength Logic ---
+        function checkStrength() {
+            const val = document.getElementById('password').value;
+            const fill = document.getElementById('strength-fill');
+            const text = document.getElementById('strength-text');
+            
+            let strength = 0;
+            if(val.length > 5) strength += 25;
+            if(val.length > 8) strength += 25;
+            if(/[A-Z]/.test(val)) strength += 25;
+            if(/[0-9]/.test(val)) strength += 25;
+
+            fill.style.width = strength + '%';
+
+            if(strength <= 25) {
+                fill.style.backgroundColor = '#ff4d4d'; // Red
+                text.innerText = "Weak";
+            } else if (strength <= 50) {
+                fill.style.backgroundColor = '#ffd700'; // Yellow
+                text.innerText = "Moderate";
+            } else if (strength <= 75) {
+                fill.style.backgroundColor = '#00cc7d'; // Dim Green
+                text.innerText = "Good";
+            } else {
+                fill.style.backgroundColor = '#00ff9d'; // Neon Green
+                text.innerText = "Excellent";
+            }
+        }
+
+        // --- WebGL Background (Standard) ---
+        const canvas = document.getElementById('gl-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, -1);
+        const material = new THREE.RawShaderMaterial({
+            vertexShader: `attribute vec3 position; void main() { gl_Position = vec4(position, 1.0); }`,
+            fragmentShader: `
+                precision highp float;
+                uniform vec2 resolution; uniform float time;
+                void main() {
+                    vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
+                    float r = 0.05 / abs(p.y + sin((p.x + time) * 1.0) * 0.5);
+                    gl_FragColor = vec4(0.0, r * 0.8, r * 0.6, 1.0);
+                }
+            `,
+            uniforms: {
+                time: { value: 0.0 },
+                resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+            }
+        });
+        scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+
+        function resize() {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            material.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function animate() {
+            material.uniforms.time.value += 0.005;
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>

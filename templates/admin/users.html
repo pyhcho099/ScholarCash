@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Database | ScholarCash</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.29/dist/lenis.min.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #050505;
+            --surface: #0a0a0a;
+            --primary: #00ff9d;
+            --primary-dim: rgba(0, 255, 157, 0.1);
+            --secondary: #00b8ff;
+            --danger: #ff4d4d;
+            --warning: #facc15;
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.5);
+
+            --glass-bg: rgba(20, 20, 20, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --card-radius: 16px;
+
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+            pointer-events: none;
+            background: #050505;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .brand {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 3rem;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background: var(--primary-dim);
+            color: var(--primary);
+            border: 1px solid rgba(0, 255, 157, 0.2);
+        }
+
+        .admin-profile {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #333;
+            border: 2px solid var(--secondary);
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex: 1;
+            padding: 2rem 3rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* --- TOOLBAR --- */
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-box i {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            color: var(--text-muted);
+        }
+
+        .search-input {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--glass-border);
+            padding: 10px 10px 10px 40px;
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+        }
+
+        .filter-select {
+            background: #000;
+            color: #fff;
+            border: 1px solid var(--glass-border);
+            padding: 0 1rem;
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-btn:hover {
+            background: #fff;
+        }
+
+        /* --- USERS TABLE --- */
+        .table-panel {
+            background: rgba(15, 15, 15, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+            padding: 1.2rem;
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        td {
+            padding: 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            border: 1px solid var(--glass-border);
+            text-transform: uppercase;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: rgba(0, 255, 157, 0.1);
+            color: var(--primary);
+        }
+
+        .status-suspended {
+            background: rgba(255, 77, 77, 0.1);
+            color: var(--danger);
+        }
+
+        .action-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid var(--glass-border);
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(0, 255, 157, 0.05);
+        }
+
+        .icon-btn.delete:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(255, 77, 77, 0.05);
+        }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .modal-card {
+            background: #111;
+            border: 1px solid var(--glass-border);
+            width: 450px;
+            padding: 2rem;
+            border-radius: 20px;
+            transform: translateY(20px);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .input-group label {
+            display: block;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--glass-border);
+            padding: 12px;
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+        }
+
+        .input-field.error {
+            border-color: var(--danger);
+            animation: shake 0.3s;
+        }
+
+        .input-field:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid var(--primary);
+            padding: 15px 25px;
+            border-radius: 12px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            z-index: 200;
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="canvas-bg"></div>
+
+    <div class="toast" id="toast">
+        <i data-lucide="check-circle" style="color: var(--primary);"></i>
+        <span id="toast-msg">Operation Successful</span>
+    </div>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <i data-lucide="zap"></i> SCHOLAR<br>ADMIN
+        </div>
+
+        <nav class="nav-menu">
+            <a href="{% url 'admin_dashboard' %}" class="nav-item"><i data-lucide="layout-dashboard" size="18"></i>
+                Overview</a>
+            <a href="{% url 'admin_users' %}" class="nav-item active"><i data-lucide="users" size="18"></i> Students</a>
+            <a href="{% url 'admin_inventory' %}" class="nav-item"><i data-lucide="shopping-bag" size="18"></i>
+                Inventory</a>
+            <a href="{% url 'admin_logs' %}" class="nav-item"><i data-lucide="file-text" size="18"></i> Audit Logs</a>
+            <a href="{% url 'admin_settings' %}" class="nav-item"><i data-lucide="settings" size="18"></i> Settings</a>
+        </nav>
+
+        <div class="admin-profile">
+            <div class="avatar"></div>
+            <div>
+                <div style="font-weight: 600; font-size: 0.9rem;">Principal.sys</div>
+                <div style="font-size: 0.8rem; color: var(--primary);">Super Admin</div>
+            </div>
+            <a href="{% url 'logout' %}" style="margin-left: auto; color: var(--text-muted);"><i data-lucide="log-out"
+                    size="18"></i></a>
+        </div>
+    </aside>
+
+    <main class="main-content" id="scroll-wrapper">
+
+        <header>
+            <div>
+                <h1>Student Database</h1>
+                <p style="color: var(--text-muted);">Manage accounts and balances</p>
+            </div>
+        </header>
+
+        <div class="toolbar">
+            <div class="search-box">
+                <i data-lucide="search" size="18"></i>
+                <input type="text" class="search-input" id="search-input" placeholder="Search by name, ID, or class..."
+                    onkeyup="filterTable()">
+            </div>
+
+            <select class="filter-select" id="class-filter" onchange="filterTable()">
+                <option value="all">All Classes</option>
+                <option value="10-A">10-A</option>
+                <option value="10-B">10-B</option>
+                <option value="11-A">11-A</option>
+                <option value="12-A">12-A</option>
+            </select>
+
+            <button class="add-btn" onclick="openModal('edit', null)">
+                <i data-lucide="user-plus" size="18"></i> Add New
+            </button>
+        </div>
+
+        <div class="table-panel">
+            <table id="users-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>ID</th>
+                        <th>Class</th>
+                        <th>Balance</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar">JD</div>
+                                <div>
+                                    <div style="font-weight: 600;">John Doe</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">john.d@school.edu</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="font-family: monospace;">#8821</td>
+                        <td>11-A</td>
+                        <td style="color: var(--primary); font-weight: 600;">1,250 ◈</td>
+                        <td><span class="status-badge status-active">Active</span></td>
+                        <td>
+                            <div class="action-cell">
+                                <button class="icon-btn" title="Mint Coins" onclick="openModal('mint', this)"><i
+                                        data-lucide="coins" size="16"></i></button>
+                                <button class="icon-btn" title="Edit" onclick="openModal('edit', this)"><i
+                                        data-lucide="edit-2" size="16"></i></button>
+                                <button class="icon-btn delete" title="Suspend" onclick="deleteUser(this)"><i
+                                        data-lucide="ban" size="16"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <div class="modal-overlay" id="modal-edit">
+        <div class="modal-card">
+            <h2 id="modal-title" style="font-family: var(--font-display); margin-bottom: 1.5rem;">Student Profile</h2>
+
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" class="input-field" id="edit-name" placeholder="Name">
+            </div>
+
+            <div class="input-group">
+                <label>Student ID</label>
+                <input type="text" class="input-field" id="edit-id" placeholder="8825">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="input-group">
+                    <label>Class</label>
+                    <select class="input-field" id="edit-class">
+                        <option>10-A</option>
+                        <option>10-B</option>
+                        <option>11-A</option>
+                        <option>12-A</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Status</label>
+                    <select class="input-field" id="edit-status">
+                        <option value="Active">Active</option>
+                        <option value="Suspended">Suspended</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="save-btn" onclick="saveUser()">Save Changes</button>
+            <button class="btn-primary"
+                style="background: transparent; border: 1px solid var(--glass-border); color: #fff; margin-top: 10px;"
+                onclick="closeModal('edit')">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-mint">
+        <div class="modal-card">
+            <h2 style="font-family: var(--font-display); margin-bottom: 0.5rem;">Mint Coins</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Send to: <span id="mint-target"
+                    style="color: var(--primary);">User</span></p>
+            <div class="input-group"><label>Amount</label><input type="number" class="input-field" placeholder="0.00">
+            </div>
+            <div class="input-group"><label>Reason</label><input type="text" class="input-field"
+                    placeholder="e.g. Winner"></div>
+            <button class="btn-primary" onclick="closeModal('mint')">Transfer</button>
+            <button class="btn-primary"
+                style="background: transparent; border: 1px solid var(--glass-border); color: #fff; margin-top: 10px;"
+                onclick="closeModal('mint')">Cancel</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // 1. Icons & Init
+        lucide.createIcons();
+        const lenis = new Lenis({ wrapper: document.getElementById('scroll-wrapper'), content: document.getElementById('scroll-wrapper') });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); } requestAnimationFrame(raf);
+        gsap.from(".sidebar", { x: -50, opacity: 0, duration: 1 });
+        gsap.from("tr", { y: 20, opacity: 0, duration: 0.5, stagger: 0.1, delay: 0.3 });
+
+        // Helper: Sanitize Input (Fixes XSS)
+        function safe(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // 2. Filter Table
+        function filterTable() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const classFilter = document.getElementById('class-filter').value;
+            const rows = document.querySelectorAll('#table-body tr');
+
+            rows.forEach(row => {
+                const name = row.cells[0].innerText.toLowerCase();
+                const id = row.cells[1].innerText.toLowerCase();
+                const className = row.cells[2].innerText;
+                const matchesSearch = name.includes(search) || id.includes(search);
+                const matchesClass = classFilter === 'all' || className === classFilter;
+                row.style.display = (matchesSearch && matchesClass) ? '' : 'none';
+            });
+        }
+
+        // 3. Modal Logic
+        let currentMode = 'add';
+        let editingRow = null; // Store reference to the row being edited
+
+        function openModal(type, triggerElement) {
+            const modal = document.getElementById(`modal-${type}`);
+
+            if (type === 'edit') {
+                // Determine if Add or Edit based on trigger
+                const isAdd = (triggerElement === null);
+                currentMode = isAdd ? 'add' : 'edit';
+
+                document.getElementById('modal-title').innerText = isAdd ? 'Enroll Student' : 'Edit Student';
+                document.getElementById('save-btn').innerText = isAdd ? 'Confirm Enrollment' : 'Update Profile';
+
+                const idField = document.getElementById('edit-id');
+                const nameField = document.getElementById('edit-name');
+                const classField = document.getElementById('edit-class');
+                const statusField = document.getElementById('edit-status');
+
+                // Clear errors
+                nameField.classList.remove('error');
+                idField.classList.remove('error');
+
+                if (isAdd) {
+                    editingRow = null;
+                    idField.disabled = false;
+                    nameField.value = "";
+                    idField.value = "";
+                    statusField.value = "Active";
+                } else {
+                    // Extract data from the row
+                    editingRow = triggerElement.closest('tr');
+                    const name = editingRow.cells[0].querySelector('div > div > div').innerText;
+                    const id = editingRow.cells[1].innerText.replace('#', '');
+                    const cls = editingRow.cells[2].innerText;
+                    const statusText = editingRow.cells[4].innerText.trim();
+
+                    nameField.value = name;
+                    idField.value = id;
+                    classField.value = cls;
+                    statusField.value = statusText;
+
+                    idField.disabled = true; // Cannot change ID
+                }
+
+                // Show modal
+                document.getElementById('modal-edit').style.pointerEvents = "flex";
+                gsap.to(document.getElementById('modal-edit'), { opacity: 1, duration: 0.3 });
+                gsap.fromTo(document.getElementById('modal-edit').querySelector('.modal-card'), { y: 20, scale: 0.95 }, { y: 0, scale: 1, duration: 0.4 });
+                return;
+            }
+
+            if (type === 'mint') {
+                const row = triggerElement.closest('tr');
+                const name = row.cells[0].querySelector('div > div > div').innerText;
+                document.getElementById('mint-target').innerText = name;
+            }
+
+            modal.style.pointerEvents = "flex";
+            gsap.to(modal, { opacity: 1, duration: 0.3 });
+            gsap.fromTo(modal.querySelector('.modal-card'), { y: 20, scale: 0.95 }, { y: 0, scale: 1, duration: 0.4 });
+        }
+
+        function closeModal(type) {
+            const modal = document.getElementById(`modal-${type}`);
+            modal.style.pointerEvents = "none";
+            gsap.to(modal, { opacity: 0, duration: 0.3 });
+        }
+
+        // 4. Toast Logic
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            gsap.to(toast, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(1.7)" });
+            setTimeout(() => {
+                gsap.to(toast, { y: 100, opacity: 0, duration: 0.5 });
+            }, 3000);
+        }
+
+        // 5. Save User (Add or Edit)
+        function saveUser() {
+            const nameField = document.getElementById('edit-name');
+            const idField = document.getElementById('edit-id');
+            const classField = document.getElementById('edit-class');
+            const statusField = document.getElementById('edit-status');
+
+            let isValid = true;
+            if (!nameField.value) { nameField.classList.add('error'); isValid = false; }
+            if (!idField.value) { idField.classList.add('error'); isValid = false; }
+            if (!isValid) return;
+
+            const name = safe(nameField.value);
+            const id = safe(idField.value);
+            const cls = safe(classField.value);
+            const status = safe(statusField.value);
+
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            const email = name.replace(/\s+/g, '.').toLowerCase() + '@school.edu';
+            const statusClass = status === 'Active' ? 'status-active' : 'status-suspended';
+
+            if (currentMode === 'add') {
+                // CREATE NEW ROW
+                const newRow = `
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar" style="background:var(--secondary); color:#000;">${initials}</div>
+                            <div>
+                                <div style="font-weight: 600;">${name}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">${email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-family: monospace;">#${id}</td>
+                    <td>${cls}</td>
+                    <td style="color: var(--primary); font-weight: 600;">0 ◈</td>
+                    <td><span class="status-badge ${statusClass}">${status}</span></td>
+                    <td>
+                        <div class="action-cell">
+                            <button class="icon-btn" onclick="openModal('mint', this)"><i data-lucide="coins" size="16"></i></button>
+                            <button class="icon-btn" onclick="openModal('edit', this)"><i data-lucide="edit-2" size="16"></i></button>
+                            <button class="icon-btn delete" onclick="deleteUser(this)"><i data-lucide="ban" size="16"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+
+                const tbody = document.getElementById('table-body');
+                tbody.insertAdjacentHTML('afterbegin', newRow);
+
+                // Animate entrance
+                const insertedRow = tbody.firstElementChild;
+                gsap.from(insertedRow, { x: -20, opacity: 0, duration: 0.5, background: "rgba(0, 255, 157, 0.2)" });
+
+                showToast(`Student ${name} Enrolled!`);
+
+            } else if (currentMode === 'edit' && editingRow) {
+                // UPDATE EXISTING ROW
+                editingRow.cells[0].querySelector('div > div > div').innerText = name; // Name
+                editingRow.cells[0].querySelector('div > div > div:nth-child(2)').innerText = email; // Email
+                editingRow.cells[0].querySelector('.user-avatar').innerText = initials; // Avatar
+                editingRow.cells[2].innerText = cls; // Class
+                editingRow.cells[4].innerHTML = `<span class="status-badge ${statusClass}">${status}</span>`; // Status
+
+                // Visual feedback
+                gsap.fromTo(editingRow, { background: "rgba(0, 255, 157, 0.2)" }, { background: "transparent", duration: 1 });
+                showToast("Profile Updated Successfully");
+            }
+
+            lucide.createIcons();
+            filterTable(); // Re-run filter to ensure new/edited row visibility
+            closeModal('edit');
+        }
+
+        // 6. Delete User Function
+        function deleteUser(btn) {
+            if (confirm("Are you sure you want to suspend this student?")) {
+                const row = btn.closest('tr');
+                gsap.to(row, {
+                    x: 50, opacity: 0, duration: 0.3,
+                    onComplete: () => {
+                        row.remove();
+                        showToast("Student Removed");
+                    }
+                });
+            }
+        }
+
+        // 7. WebGL Background
+        try {
+            const canvas = document.getElementById('canvas-bg');
+            const renderer = new THREE.WebGLRenderer({ canvas: document.createElement('canvas'), alpha: true });
+            canvas.appendChild(renderer.domElement);
+            const scene = new THREE.Scene();
+            const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, -1);
+            const material = new THREE.RawShaderMaterial({
+                vertexShader: `attribute vec3 position; void main() { gl_Position = vec4(position, 1.0); }`,
+                fragmentShader: `precision highp float; uniform vec2 resolution; uniform float time; void main() { vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y); float r = 0.05 / abs(p.y + sin((p.x + time) * 0.5) * 0.5); gl_FragColor = vec4(r * 0.0, r * 0.3, r * 0.2, 1.0); }`,
+                uniforms: { time: { value: 0.0 }, resolution: { value: new THREE.Vector2() } }
+            });
+            scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+            function resize() { renderer.setSize(window.innerWidth, window.innerHeight); material.uniforms.resolution.value.set(window.innerWidth, window.innerHeight); renderer.domElement.style.width = "100%"; renderer.domElement.style.height = "100%"; }
+            window.addEventListener('resize', resize); resize();
+            function animate() { material.uniforms.time.value += 0.005; renderer.render(scene, camera); requestAnimationFrame(animate); } animate();
+        } catch (e) { }
+    </script>
+</body>
+
+</html>

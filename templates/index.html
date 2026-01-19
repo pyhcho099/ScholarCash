@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScholarCash | The Future of Ed-Tech</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;500;700&display=swap"
+        rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            /* Color Theory: Neon Cyber Palette */
+            --bg-deep: #050505;
+            --primary: #00ff9d;
+            /* Neon Mint */
+            --primary-dim: rgba(0, 255, 157, 0.1);
+            --secondary: #00b8ff;
+            /* Cyber Blue */
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+
+            /* Glassmorphism Variables */
+            --glass-bg: rgba(20, 20, 20, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-shine: rgba(255, 255, 255, 0.1);
+
+            /* Typography */
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            width: 100vw;
+        }
+
+        /* --- WebGL Canvas --- */
+        #gl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        /* --- Layout --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 0;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-shadow: 0 0 15px var(--primary-dim);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            position: relative;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        /* Specific Login Button Styling in Nav */
+        .nav-btn {
+            padding: 0.5rem 1.5rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-dim);
+            color: var(--primary);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-top: 6rem;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 7vw, 6rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff 30%, #9ca3af 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+            color: var(--text-muted);
+            max-width: 650px;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+
+        /* --- Liquid Button --- */
+        .btn-liquid {
+            position: relative;
+            padding: 1.2rem 3.5rem;
+            background: transparent;
+            color: var(--primary);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: 1px solid var(--primary);
+            border-radius: 50px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            text-decoration: none;
+            box-shadow: 0 0 20px var(--primary-dim);
+        }
+
+        .btn-liquid:hover {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 0 40px rgba(0, 255, 157, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* --- The Ecosystem (About) --- */
+        .ecosystem {
+            padding: 8rem 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-tag {
+            color: var(--secondary);
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .eco-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .eco-text h3 {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+        }
+
+        .eco-text p {
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .eco-list li {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .eco-list i {
+            color: var(--primary);
+        }
+
+        /* --- Live Stats --- */
+        .stats-bar {
+            background: var(--glass-bg);
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 4rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            text-align: center;
+            gap: 2rem;
+        }
+
+        .stat-item h4 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item p {
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.9rem;
+        }
+
+        /* --- Features Cards --- */
+        .features {
+            padding: 10rem 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .card {
+            background: rgba(20, 20, 20, 0.4);
+            border: 1px solid var(--glass-border);
+            padding: 3rem;
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            transition: border-color 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            transform: translateZ(20px);
+        }
+
+        .card h3 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            transform: translateZ(30px);
+        }
+
+        .card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            transform: translateZ(20px);
+        }
+
+        /* --- Modal (Get Started) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: #111;
+            border: 1px solid var(--glass-border);
+            padding: 3rem;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 50px rgba(0, 255, 157, 0.1);
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-btn {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-main);
+        }
+
+        .close-modal {
+            margin-top: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: underline;
+        }
+
+        /* --- Footer --- */
+        footer {
+            padding: 4rem 0;
+            border-top: 1px solid var(--glass-border);
+            background: #000;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        /* --- Animations --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- MOBILE NAV PATCH --- */
+        @media (max-width: 768px) {
+            nav {
+                position: relative;
+                /* Un-fix nav so it doesn't cover content */
+                top: 0;
+                padding: 1rem;
+            }
+
+            .nav-inner {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .nav-links {
+                gap: 1.5rem;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .hero h1 {
+                font-size: 3.5rem;
+                /* Scale down text */
+            }
+
+            .eco-grid {
+                grid-template-columns: 1fr;
+                /* Stack Ecosystem section */
+                gap: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                /* Stack Stats */
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="gl-canvas"></canvas>
+
+    <nav>
+        <div class="container nav-inner">
+            <a href="index.html" class="logo">
+                <i data-lucide="zap" style="color: var(--primary);"></i>
+                SCHOLARCASH
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="#how-it-works" class="nav-link">How it Works</a>
+                <a href="team.html" class="nav-link">Team</a>
+                <a href="login.html" class="nav-link nav-btn">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="modal-overlay" id="startModal">
+        <div class="modal-card">
+            <h2 style="font-family: var(--font-display); font-size: 2rem; margin-bottom: 0.5rem;">Get Started</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Join the ecosystem today.</p>
+
+            <a href="login.html" class="modal-btn btn-outline">I have an account</a>
+            <a href="register.html" class="modal-btn btn-primary">I am a new student</a>
+
+            <div class="close-modal" onclick="toggleModal()">Close</div>
+        </div>
+    </div>
+
+    <section class="container hero">
+        <div class="reveal">
+            <h1>GAMIFY YOUR<br>ACADEMIC JOURNEY</h1>
+        </div>
+
+        <p class="hero-subtitle reveal" style="transition-delay: 0.1s;">
+            ScholarCash turns grades into gold. Earn digital currency for excellence, learn financial literacy, and
+            unlock real-world rewards.
+        </p>
+
+        <div class="reveal" style="transition-delay: 0.2s;">
+            <button class="btn-liquid" onclick="toggleModal()">
+                Get Started
+            </button>
+        </div>
+    </section>
+
+    <section class="stats-bar reveal">
+        <div class="container stats-grid">
+            <div class="stat-item">
+                <h4>10k+</h4>
+                <p>Coins Minted</p>
+            </div>
+            <div class="stat-item">
+                <h4>500+</h4>
+                <p>Active Students</p>
+            </div>
+            <div class="stat-item">
+                <h4>50+</h4>
+                <p>Rewards Redeemed</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container ecosystem" id="how-it-works">
+        <div class="section-header reveal">
+            <span class="section-tag">The Workflow</span>
+            <h2 style="font-family: var(--font-display); font-size: 2.5rem;">A Digital Economy for School</h2>
+        </div>
+
+        <div class="eco-grid">
+            <div class="eco-text reveal">
+                <h3>More than just points.</h3>
+                <p>We believe financial literacy starts early. ScholarCash introduces a closed-loop economy within the
+                    campus, teaching students the value of earning, saving, and smart spending.</p>
+                <ul class="eco-list">
+                    <li><i data-lucide="check-circle"></i> Earn for Homework & Participation</li>
+                    <li><i data-lucide="check-circle"></i> Digital Wallet & Transaction Logs</li>
+                    <li><i data-lucide="check-circle"></i> QR Code Payments at School Store</li>
+                </ul>
+            </div>
+            <div class="card reveal" style="text-align: center; padding: 4rem;">
+                <i data-lucide="smartphone"
+                    style="width: 80px; height: 80px; color: var(--secondary); margin-bottom: 1rem;"></i>
+                <h4 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Mobile First</h4>
+                <p style="color: var(--text-muted);">Access your balance and ID anywhere.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container features">
+        <div class="features-grid">
+            <div class="card reveal" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare
+                data-tilt-max-glare="0.1">
+                <div class="card-icon"><i data-lucide="coins"></i></div>
+                <h3>Mint Coins</h3>
+                <p>Teachers act as the central bank, minting coins to students for academic achievements and good
+                    behavior.</p>
+            </div>
+
+            <div class="card reveal" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare
+                data-tilt-max-glare="0.1">
+                <div class="card-icon"><i data-lucide="shopping-bag"></i></div>
+                <h3>Shop Rewards</h3>
+                <p>Visit the campus store or cafeteria. Scan item QR codes to instantly purchase using your ScholarCash
+                    balance.</p>
+            </div>
+
+            <div class="card reveal" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare
+                data-tilt-max-glare="0.1">
+                <div class="card-icon"><i data-lucide="pie-chart"></i></div>
+                <h3>Track Growth</h3>
+                <p>View detailed ledgers of every transaction. Analyze your earning trends and spending habits over the
+                    semester.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="team.html">Our Team</a>
+                <a href="login.html">Admin Portal</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+            <p style="color: #555; font-size: 0.8rem;">
+                &copy; 2025 ScholarCash Project. Designed for the Future.
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // 1. Icons
+        lucide.createIcons();
+
+        // 2. Modal Logic
+        function toggleModal() {
+            const modal = document.getElementById('startModal');
+            modal.classList.toggle('active');
+        }
+
+        // Close modal if clicking outside card
+        document.getElementById('startModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                toggleModal();
+            }
+        });
+
+        // 3. Scroll Reveal Animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // 4. WebGL Background (Cyan/Mint Theme)
+        const canvas = document.getElementById('gl-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, -1);
+
+        function resize() {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (material.uniforms) material.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
+        }
+        window.addEventListener('resize', resize);
+
+        const uniforms = {
+            time: { value: 0.0 },
+            resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+            xScale: { value: 1.0 },
+            yScale: { value: 0.5 },
+            distortion: { value: 0.05 }
+        };
+
+        const vertexShader = `attribute vec3 position; void main() { gl_Position = vec4(position, 1.0); }`;
+        const fragmentShader = `
+            precision highp float;
+            uniform vec2 resolution; uniform float time; uniform float xScale; uniform float yScale; uniform float distortion;
+            void main() {
+                vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
+                float d = length(p) * distortion;
+                float rx = p.x * (1.0 + d); float gx = p.x; float bx = p.x * (1.0 - d);
+                float r = 0.05 / abs(p.y + sin((rx + time) * xScale) * yScale);
+                float g = 0.05 / abs(p.y + sin((gx + time) * xScale) * yScale);
+                float b = 0.05 / abs(p.y + sin((bx + time) * xScale) * yScale);
+                gl_FragColor = vec4(r * 0.1, g * 0.9, b * 0.8, 1.0);
+            }
+        `;
+
+        const material = new THREE.RawShaderMaterial({ vertexShader, fragmentShader, uniforms });
+        scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+        resize();
+
+        function animate() {
+            uniforms.time.value += 0.005;
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+
+</html>
